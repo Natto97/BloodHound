@@ -33,7 +33,10 @@ import (
 )
 
 func PostADCSESC13(ctx context.Context, tx graph.Transaction, outC chan<- analysis.CreatePostRelationshipJob, groupExpansions impact.PathAggregator, eca, domain *graph.Node, cache ADCSCache) error {
-	if publishedCertTemplates, ok := cache.PublishedTemplateCache[eca.ID]; !ok {
+	if domainsid, err := domain.Properties.Get(ad.DomainSID.String()).String(); err != nil {
+		log.Warnf("Error getting domain SID for domain %d: %v", domain.ID, err)
+		return nil
+	} else if publishedCertTemplates, ok := cache.PublishedTemplateCache[eca.ID]; !ok {
 		return nil
 	} else {
 		for _, template := range publishedCertTemplates {
@@ -46,7 +49,7 @@ func PostADCSESC13(ctx context.Context, tx graph.Transaction, outC chan<- analys
 			} else if len(groupNodes) == 0 {
 				continue
 			} else {
-				controlBitmap := CalculateCrossProductNodeSets(groupExpansions, cache.CertTemplateEnrollers[template.ID], cache.EnterpriseCAEnrollers[eca.ID])
+				controlBitmap := CalculateCrossProductNodeSets(tx, domainsid, groupExpansions, cache.CertTemplateEnrollers[template.ID], cache.EnterpriseCAEnrollers[eca.ID])
 				if filtered, err := filterUserDNSResults(tx, controlBitmap, template); err != nil {
 					log.Warnf("Error filtering users from victims for esc13: %v", err)
 					continue
