@@ -33,9 +33,9 @@ const (
 	PasswordExpirationWindow        = "auth.password_expiration_window"
 	DefaultPasswordExpirationWindow = time.Hour * 24 * 90
 
-	Neo4jConfigs = "neo4j.configuration"
-	PruneTTL     = "prune.ttl"
-	CitrixRDPSupportKey         = "analysis.citrix_rdp_support"
+	Neo4jConfigs        = "neo4j.configuration"
+	PruneTTL            = "prune.ttl"
+	CitrixRDPSupportKey = "analysis.citrix_rdp_support"
 )
 
 // Parameter is a runtime configuration parameter that can be fetched from the appcfg.ParameterService interface. The
@@ -143,27 +143,25 @@ func GetNeo4jParameters(ctx context.Context, service ParameterService) Neo4jPara
 	return result
 }
 
+// CitrixRDP
+
 type CitrixRDPSupport struct {
 	Enabled bool `json:"enabled,omitempty"`
 }
 
-func GetCitrixRDPSupport(ctx context.Context, service ParameterService) CitrixRDPSupport {
+func GetCitrixRDPSupport(ctx context.Context, service ParameterService) bool {
 	var result CitrixRDPSupport
 
 	if cfg, err := service.GetConfigurationParameter(ctx, CitrixRDPSupportKey); err != nil {
-		log.Errorf("Failed to fetch CitrixRDPSupport configuration; returning default values")
-		result = CitrixRDPSupport{
-			Enabled: false,
-		}
+		log.Warnf("Failed to fetch CitrixRDPSupport configuration; returning default values")
 	} else if err := cfg.Map(&result); err != nil {
-		log.Errorf("Invalid CitrixRDPSupport configuration supplied, %v. returning default values.", err)
-		result = CitrixRDPSupport{
-			Enabled: false,
-		}
+		log.Warnf("Invalid CitrixRDPSupport configuration supplied, %v. returning default values.", err)
 	}
 
-	return result
+	return result.Enabled
 }
+
+// PruneTTL
 
 type PruneTTLParameters struct {
 	BaseTTL           time.Duration `json:"base_ttl,omitempty"`
