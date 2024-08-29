@@ -26,3 +26,8 @@
 
 -- Add Prune TTLs
 INSERT INTO parameters (id, key, name, description, value, created_at, updated_at) VALUES (3, 'prune.ttl', 'Prune Retention TTL Configuration Parameters', 'This configuration parameter sets the retention TTLs during analysis pruning.', '{"base_ttl": "P7D", "has_session_edge_ttl": "P3D"}', current_timestamp, current_timestamp) ON CONFLICT DO NOTHING;
+
+-- Add Reconciliation to parameters and remove from feature_flags
+INSERT INTO parameters (id, key, name, description, value, created_at, updated_at) VALUES (4, 'analysis.reconciliation', 'Reconciliation', 'This configuration parameter enables / disables reconciliation during analysis.', format('{"enabled": %s}', (SELECT enabled FROM feature_flags WHERE key = 'reconciliation')::text)::json, current_timestamp, current_timestamp) ON CONFLICT DO NOTHING;
+-- must occur after insert to ensure reconciliation flag is set to whatever current value is
+DELETE FROM feature_flags WHERE key = 'reconciliation';
