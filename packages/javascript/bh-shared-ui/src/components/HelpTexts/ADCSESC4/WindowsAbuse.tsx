@@ -172,7 +172,7 @@ const WindowsAbuse: FC = () => {
                 
                 # Print attributes
                 Write-Host "pKIExtendedKeyUsage: $($template.Properties["pKIExtendedKeyUsage"])"
-                Write-Host "msPKI-Certificate-Application-Policy: $($template.Pro`}
+                Write-Host "msPKI-Certificate-Application-Policy: $($template.Properties["msPKI-Certificate-Application-Policy"])"
             </CodeController>
             <Typography variant='body2' className={classes.containsCodeEl}>
                 To run the LDAP query as another principal, replace <code>DirectoryEntry($ldapPath)</code> with{' '}
